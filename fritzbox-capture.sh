@@ -204,7 +204,7 @@ if [ ! -e "$FIFO_FILE" ] ; then
 fi
 
 # wireshark/extcap.c sends SIGTERM when the capture ends, after unlinking FIFO_FILE.
-# TODO: Actually, Wireshark doesn't send the signal. The logic works, with kill though.
+# TODO: Actually, Wireshark doesn't send the signal. The logic works, with kill though. TODO this is supported in 3.3.0
 # TODO: Try to find a good way to exit sooner, rather than relying on failures from FIFO_FILE.
 trap 'catch_signal SIGINT' SIGINT
 trap 'catch_signal SIGTERM' SIGTERM

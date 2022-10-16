@@ -95,9 +95,9 @@ extcap_dlts() {
 
 # --extcap_config
 extcap_config() {
-    echo "arg {number=0}{call=--arg-ip}{display=FRITZ!Box IP address}{type=string}{tooltip=FRITZ!Box IP address}{default=$FRITZ_BOX_IP}{required=true}"
-    echo "arg {number=1}{call=--arg-iface}{display=FRITZ!Box interface}{type=string}{tooltip=FRITZ!Box capture interface, see https://$FRITZ_BOX_IP/?lp=cap for more info (and inspect the buttons to see the value) }{default=$FRITZ_BOX_IFACE}{required=true}"
-    echo "arg {number=2}{call=--arg-sid}{display=FRITZ!Box sid or URL with sid}{type=string}{tooltip=The FRITZ!Box sid - after logging, find and copy a link containing sid}{required=true}"
+    echo "arg {number=0}{call=--arg-ip}{display=FRITZ!Box IP address}{type=string}{tooltip=FRITZ!Box IP address}{default=$FRITZ_BOX_IP}"
+    echo "arg {number=1}{call=--arg-iface}{display=FRITZ!Box interface}{type=string}{tooltip=FRITZ!Box capture interface, see https://$FRITZ_BOX_IP/?lp=cap for more info (and inspect the buttons to see the value) }{default=$FRITZ_BOX_IFACE}"
+    echo "arg {number=2}{call=--arg-sid}{display=FRITZ!Box sid or URL with sid}{type=string}{tooltip=The FRITZ!Box sid - after logging, find and copy a link containing sid}"
     echo "arg {number=3}{call=--enable-logging}{display=Enable logging for debugging}{type=boolflag}"
     echo "arg {number=4}{call=--log-file}{display=Location of log file}{type=string}{default=$DEBUG_LOG_FILE}"
 }

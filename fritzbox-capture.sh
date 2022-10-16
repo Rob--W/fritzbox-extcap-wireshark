@@ -25,6 +25,7 @@ FRITZ_BOX_SID=
 CAPTURE_FILTER=
 
 FIFO_FILE=
+FIFO_FILE_CLOSED=
 
 DEBUG=
 DEBUG_LOG_FILE=/tmp/fritz-extcap.log
@@ -204,8 +205,8 @@ if [ ! -e "$FIFO_FILE" ] ; then
 fi
 
 # wireshark/extcap.c sends SIGTERM when the capture ends, after unlinking FIFO_FILE.
-# TODO: Actually, Wireshark doesn't send the signal. The logic works, with kill though. TODO this is supported in 3.3.0
-# TODO: Try to find a good way to exit sooner, rather than relying on failures from FIFO_FILE.
+# This is supported since Wireshark 3.3.0. Before that, the logic works with kill,
+# by relying on failures from FIFO_FILE.
 trap 'catch_signal SIGINT' SIGINT
 trap 'catch_signal SIGTERM' SIGTERM
 exited_with_exitcode=
@@ -216,6 +217,7 @@ catch_signal() {
     log_debug "Received $SIGNAL, cleaning up"
 
     exec 3>&- # Close FIFO_FILE fd
+    FIFO_FILE_CLOSED=1
 
     if [ -z "$PID_OF_CURL_CAPTURE" ] ; then
         log_debug "Early exit because capture has not started yet"
@@ -364,8 +366,10 @@ else
 fi
 
 # Flush FIFO file if needed - otherwise Wireshark doesn't know that we're done.
-[ -e "$FIFO_FILE" ] && echo >&3
-exec 3>&- # Close FIFO_FILE fd
+if [ $FIFO_FILE_CLOSED != 1 ] ; then
+    [ -e "$FIFO_FILE" ] && echo >&3
+    exec 3>&- # Close FIFO_FILE fd
+fi
 
 # TODO: Should this extcap script return a non-zero exit code? It's not really significant.
 exit $exited_with_exitcode

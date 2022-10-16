@@ -60,3 +60,6 @@ To detect this new script, press F5. Or quit and start Wireshark.
    "FRITZ!Box Capture: fritzbox-capture" in Wireshark's Interfaces section to
    start capturing.
 
+
+## Screenshot
+![Screenshot of the config before capture](screenshot.png)

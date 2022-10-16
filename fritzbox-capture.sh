@@ -1,4 +1,8 @@
 #!/bin/bash
+#
+# (c) Rob Wu <rob@robwu.nl>
+#
+# https://github.com/Rob--W/fritzbox-extcap-wireshark
 
 # Put/symlink this file in ~/.wireshark/extcap/
 # https://www.wireshark.org/docs/wsdg_html_chunked/ChCaptureExtcap.html
@@ -12,6 +16,10 @@ FRITZ_BOX_IP=192.168.178.1
 
 # Potentially interesting - found by visiting https://$FRITZ_BOX_IP/?lp=cap and inspecting the buttons.
 # There is also a listing at https://github.com/jpluimers/fritzcap/blob/master/fritzcap-interfaces-table.md
+# 1-eth0= Physical LAN1 port
+# 1-eth1= Physical LAN2 port
+# 1-eth2= Physical LAN3 port
+# 1-eth3= Physical LAN4 port
 # 1-lan = lan
 # 2-1   = 1. Internet connection
 # 3-17  = Interface 0 ('internet')
@@ -73,6 +81,8 @@ Options:
         --arg-sid <sid>: URL with SID or just SID. Log in to the FRITZ!Box and copy a link containing sid. Required.
         --enable-logging: Enable logging
         --log-file <file>: Location of log file. Defaults to: $DEBUG_LOG_FILE
+
+For usage within Wireshark, see https://github.com/Rob--W/fritzbox-extcap-wireshark#readme
 HELP
 }
 

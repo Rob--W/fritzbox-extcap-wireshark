@@ -30,6 +30,10 @@ FRITZ_BOX_IFACE="1-lan"
 
 FRITZ_BOX_SID=
 
+# documentation for further evolution can be found here
+# https://avm.de/fileadmin/user_upload/Global/Service/Schnittstellen/AVM%20Technical%20Note%20-%20Session%20ID_EN%20-%20Nov2020.pdf
+FRITZ_BOX_SID_VAL=
+
 CAPTURE_FILTER=
 
 FIFO_FILE=
@@ -79,6 +83,7 @@ Options:
                              Visit https://$FRITZ_BOX_IP/?lp=cap and inspect the value of "Start" buttons to find them.
                              Some values are also listed at https://github.com/jpluimers/fritzcap/blob/master/fritzcap-interfaces-table.md
         --arg-sid <sid>: URL with SID or just SID. Log in to the FRITZ!Box and copy a link containing sid. Required.
+        --enable-fritz-sid-validation: Enable check of SID validity using FRITZ!Box endpoint
         --enable-logging: Enable logging
         --log-file <file>: Location of log file. Defaults to: $DEBUG_LOG_FILE
 
@@ -111,6 +116,7 @@ extcap_config() {
     echo "arg {number=2}{call=--arg-sid}{display=FRITZ!Box sid or URL with sid}{type=string}{tooltip=The FRITZ!Box sid - after logging, find and copy a link containing sid}"
     echo "arg {number=3}{call=--enable-logging}{display=Enable logging for debugging}{type=boolflag}"
     echo "arg {number=4}{call=--log-file}{display=Location of log file}{type=string}{default=$DEBUG_LOG_FILE}"
+    echo "arg {number=5}{call=--enable-fritz-sid-validation}{display=Enable FRITZ!BOX SID valdidation}{type=boolflag}{default=1}"
 }
 
 extcap_capture_filter_validation() {
@@ -182,6 +188,9 @@ while [[ $# -gt 0 ]] ; do
         --arg-sid)
             FRITZ_BOX_SID=$2
             shift
+            ;;
+        --enable-fritz-sid-validation)
+            FRITZ_BOX_SID_VAL=1
             ;;
         --enable-logging)
             DEBUG=1
@@ -278,14 +287,28 @@ if [ -z "$FRITZ_BOX_SID" ]; then
     exit 1
 fi
 
-log_debug "Verifying that sid is valid"
+# old validation method is failing on modern FrizOS
+# Implementing native sid validation
+if [[ "$FRITZ_BOX_SID_VAL" == "1" ]] ; then
 
-# Verify that SID is OK
-# This is an intentionally lax check, to allow anything that looks potentially valid.
-# If the validation somehow fails, then we will fail soon enough, below.
-RESPONSE_TEXT=$("$CURL_BIN" --silent --insecure "https://${FRITZ_BOX_IP}/?sid=${FRITZ_BOX_SID}")
-if [[ "$RESPONSE_TEXT" != *"?sid="* ]] ; then
-    echo_error_and_exit "Invalid sid ($FRITZ_BOX_SID), please log in again at https://${FRITZ_BOX_IP}"
+    log_debug "Verifying that sid is valid using FRITZ!BOX endpoint"
+
+    RESPONSE_TEXT=$("$CURL_BIN" --silent --insecure "https://${FRITZ_BOX_IP}/login_sid.lua?version=2&sid=${FRITZ_BOX_SID}")
+    
+    if [[ ! "$RESPONSE_TEXT" =~ "<SID>${FRITZ_BOX_SID}</SID>" ]] ; then
+        echo_error_and_exit "Invalid sid ($FRITZ_BOX_SID), please log in again at https://${FRITZ_BOX_IP}"
+    fi
+else
+    
+    log_debug "Verifying that sid is valid"
+
+    # Verify that SID is OK
+    # This is an intentionally lax check, to allow anything that looks potentially valid.
+    # If the validation somehow fails, then we will fail soon enough, below.
+    RESPONSE_TEXT=$("$CURL_BIN" --silent --insecure "https://${FRITZ_BOX_IP}/?sid=${FRITZ_BOX_SID}")
+    if [[ "$RESPONSE_TEXT" != *"?sid="* ]] ; then
+        echo_error_and_exit "Invalid sid ($FRITZ_BOX_SID), please log in again at https://${FRITZ_BOX_IP}"
+    fi
 fi
 
 log_debug "SID seems valid"

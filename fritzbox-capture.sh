@@ -59,11 +59,11 @@ Wireshark - fritzbox-capture v$EXTCAP_VERSION
 
 Usage:
  $PROG --extcap-interfaces
- $PROG --extcap-interface=fritzbox-capture --extcap-dlts
- $PROG --extcap-interface=fritzbox-capture --extcap-config
- $PROG --extcap-interface=fritzbox-capture --arg-sid [sid] --fifo myfifo --capture
- $PROG --extcap-interface=fritzbox-capture --arg-sid [sid] --fifo myfifo --capture --extcap-capture-filter 'host 1.1.1.1'
- $PROG --extcap-interface=fritzbox-capture --arg-ip [fritzbox ip] --arg-iface [interface] --arg-sid [sid] --fifo myfifo --capture
+ $PROG --extcap-interface fritzbox-capture --extcap-dlts
+ $PROG --extcap-interface fritzbox-capture --extcap-config
+ $PROG --extcap-interface fritzbox-capture --arg-sid [sid] --fifo myfifo --capture
+ $PROG --extcap-interface fritzbox-capture --arg-sid [sid] --fifo myfifo --capture --extcap-capture-filter 'host 1.1.1.1'
+ $PROG --extcap-interface fritzbox-capture --arg-ip [fritzbox ip] --arg-iface [interface] --arg-sid [sid] --fifo myfifo --capture
 Options:
         --extcap-interfaces: list the extcap Interfaces
         --extcap-dlts: list the DLTs

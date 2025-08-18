@@ -45,7 +45,7 @@ log_debug() {
 
 
 # Constants
-EXTCAP_VERSION=0.1
+EXTCAP_VERSION=0.2
 CURL_BIN=/usr/bin/curl
 TCPDUMP_BIN=/usr/bin/tcpdump
 

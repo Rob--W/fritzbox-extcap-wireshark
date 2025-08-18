@@ -282,7 +282,7 @@ log_debug "Verifying that sid is valid"
 # Verify that SID is OK
 # This is an intentionally lax check, to allow anything that looks potentially valid.
 # If the validation somehow fails, then we will fail soon enough, below.
-RESPONSE_TEXT=$("$CURL_BIN" --silent --insecure "https://${FRITZ_BOX_IP}/?sid=${FRITZ_BOX_SID}")
+RESPONSE_TEXT=$("$CURL_BIN" --silent --insecure "https://${FRITZ_BOX_IP}/?sid=${FRITZ_BOX_SID}") || log_debug "curl failed with $?"
 if [[ "$RESPONSE_TEXT" != *"?sid="* ]] ; then
     echo_error_and_exit "Invalid sid ($FRITZ_BOX_SID), please log in again at https://${FRITZ_BOX_IP}"
 fi

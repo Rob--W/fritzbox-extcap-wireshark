@@ -241,7 +241,7 @@ catch_signal() {
         return
     fi
 
-    if kill -$SIGNAL "$PID_OF_CURL_CAPTURE" ; then
+    if kill "-$SIGNAL" "$PID_OF_CURL_CAPTURE" ; then
         log_debug "Sent signal to kill curl"
     else
         log_debug "Failed to send signal to kill curl"
@@ -275,7 +275,6 @@ fi
 # Only do the bare minimum: sid check
 if [ -z "$FRITZ_BOX_SID" ]; then
     echo_error_and_exit "sid is missing. Log in at https://${FRITZ_BOX_IP} and find a link containing '?sid=' to paste it in the capture options."
-    exit 1
 fi
 
 log_debug "Verifying that sid is valid"
@@ -348,7 +347,7 @@ if wait $PID_OF_CURL_CAPTURE ; then
 else
     exited_with_exitcode=0
 fi
-TIME_ELAPSED=$(( $SECONDS - $TIME_STARTED ))
+TIME_ELAPSED=$(( SECONDS - TIME_STARTED ))
 
 log_debug "curl exited with $exited_with_exitcode, duration $TIME_ELAPSED seconds. Trying to stop capture..."
 

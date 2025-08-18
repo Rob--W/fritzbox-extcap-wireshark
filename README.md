@@ -11,7 +11,7 @@ does not ask for your password, but the temporary session id from Fritzbox.
 ## Installation
 
 Drop a copy of `fritzbox-capture.sh` in `~/.local/lib/wireshark/extcap/`,
-or whatever is displayed as "Personal Extcap path:" when running `tshark -G folders`
+or whatever is displayed as "Personal Extcap path:" when running `tshark -G folders`.
 Or clone this repository and create a symlink to the file:
 
 ```sh

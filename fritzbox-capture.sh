@@ -4,7 +4,7 @@
 #
 # https://github.com/Rob--W/fritzbox-extcap-wireshark
 
-# Put/symlink this file in ~/.wireshark/extcap/
+# Put/symlink this file in ~/.local/lib/wireshark/extcap/
 # https://www.wireshark.org/docs/wsdg_html_chunked/ChCaptureExtcap.html
 
 set -euo pipefail

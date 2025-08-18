@@ -291,13 +291,33 @@ log_debug "SID seems valid"
 
 # Terminating the connection does not stop the capture.
 stop_capture_from_fritz() {
+    local curl_exit_code=0
+    local RESPONSE_TEXT_ON_STOP
     # Lower default max time down from 60 seconds. It should complete within a second, but when the fritzbox is stuck, it won't.
     # I have observed the fritzbox being stuck when there was an existing curl client that was likely stuck.
     # Killing that curl instance resolved the issue. Restarting the fritzbox always works too.
-    "$CURL_BIN" --insecure --max-time 5 --silent "https://${FRITZ_BOX_IP}/cgi-bin/capture_notimeout?sid=${FRITZ_BOX_SID}&capture=Stop&ifaceorminor=${FRITZ_BOX_IFACE}" >/dev/null
+    RESPONSE_TEXT_ON_STOP=$("$CURL_BIN" --insecure --max-time 5 --silent "https://${FRITZ_BOX_IP}/cgi-bin/capture_notimeout?sid=${FRITZ_BOX_SID}&capture=Stop&ifaceorminor=${FRITZ_BOX_IFACE}") || curl_exit_code=$?
     # TODO: Should check response text? When sid is invalid, request is 200 OK with body
     # "Internal communication error (login 0). Exiting."
     # Since the capture seems to usually end when the stream stops, let's just not validate it.
+    if [ "$curl_exit_code" == 0 ] ; then
+        return
+    fi
+    if [ "$curl_exit_code" == 56 ] ; then
+        # Despite getting the full response from the server, curl may fail with:
+        # curl: (56) OpenSSL SSL_read: OpenSSL/3.5.2: error:0A000126:SSL routines::unexpected eof while reading, errno 0
+        # (observed with curl 8.15.0 and Fritz!OS 8.02.)
+        if [ -z "$RESPONSE_TEXT_ON_STOP" ] ; then
+            # Upon closing successfully, HTTP status code is 200 and the response body is empty.
+            log_debug "curl returned 56. Assuming that it succeeded"
+            return
+        fi
+    fi
+    log_debug "curl request to stop capture failed with $curl_exit_code"
+    if [ -n "$RESPONSE_TEXT_ON_STOP" ] ; then
+        log_debug "server responded with: $RESPONSE_TEXT_ON_STOP"
+    fi
+    return $curl_exit_code
 }
 
 log_debug "Stopping existing capture, if any."

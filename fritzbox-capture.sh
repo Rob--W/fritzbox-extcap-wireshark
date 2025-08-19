@@ -6,7 +6,7 @@
 
 # Put/symlink this file in ~/.wireshark/extcap/
 # https://www.wireshark.org/docs/wsdg_html_chunked/ChCaptureExtcap.html
-
+source $(dirname "$(readlink -f "$0")")/fritzbox-interfaces.sh
 set -euo pipefail
 
 # Configurable variables
@@ -26,7 +26,7 @@ FRITZ_BOX_IP=192.168.178.1
 # 4-135 = AP2 (5 GHz, ath1) - Interface 1
 # 4-133 = AP (2.4 GHz, ath0) - Interface 1
 # 4-128 = WLAN Management Traffic - Interface 0
-FRITZ_BOX_IFACE="1-lan"
+# FRITZ_BOX_IFACE="1-lan"
 
 FRITZ_BOX_SID=
 
@@ -63,7 +63,7 @@ Usage:
  $PROG --extcap-interface=fritzbox-capture --extcap-config
  $PROG --extcap-interface=fritzbox-capture --arg-sid [sid] --fifo myfifo --capture
  $PROG --extcap-interface=fritzbox-capture --arg-sid [sid] --fifo myfifo --capture --extcap-capture-filter 'host 1.1.1.1'
- $PROG --extcap-interface=fritzbox-capture --arg-ip [fritzbox ip] --arg-iface [interface] --arg-sid [sid] --fifo myfifo --capture
+ $PROG --extcap-interface=fritzbox-capture --arg-ip [fritzbox ip] --arg-sid [sid] --fifo myfifo --capture
 Options:
         --extcap-interfaces: list the extcap Interfaces
         --extcap-dlts: list the DLTs
@@ -75,9 +75,6 @@ Options:
         --help: print this help
         --version: print the version
         --arg-ip <ip>: IP address of FRITZ!Box router. Defaults to: $FRITZ_BOX_IP
-        --arg-iface <iface>: Network interface. Defaults to: $FRITZ_BOX_IFACE
-                             Visit https://$FRITZ_BOX_IP/?lp=cap and inspect the value of "Start" buttons to find them.
-                             Some values are also listed at https://github.com/jpluimers/fritzcap/blob/master/fritzcap-interfaces-table.md
         --arg-sid <sid>: URL with SID or just SID. Log in to the FRITZ!Box and copy a link containing sid. Required.
         --enable-logging: Enable logging
         --log-file <file>: Location of log file. Defaults to: $DEBUG_LOG_FILE
@@ -94,7 +91,9 @@ showversion() {
 # --extcap-interfaces
 extcap_interfaces() {
     echo "extcap {version=$EXTCAP_VERSION}" # {help=helpurl} if I have one.
-    echo "interface {value=fritzbox-capture}{display=FRITZ!Box capture}"
+    for key in "${!d[@]}"; do
+        echo "interface {value=${d[$key]}}{display=FRITZ!Box $key}"
+    done
 }
 
 # --extcap-dlts
@@ -107,10 +106,9 @@ extcap_dlts() {
 # --extcap_config
 extcap_config() {
     echo "arg {number=0}{call=--arg-ip}{display=FRITZ!Box IP address}{type=string}{tooltip=FRITZ!Box IP address}{default=$FRITZ_BOX_IP}"
-    echo "arg {number=1}{call=--arg-iface}{display=FRITZ!Box interface}{type=string}{tooltip=FRITZ!Box capture interface, see https://$FRITZ_BOX_IP/?lp=cap for more info (and inspect the buttons to see the value) }{default=$FRITZ_BOX_IFACE}"
-    echo "arg {number=2}{call=--arg-sid}{display=FRITZ!Box sid or URL with sid}{type=string}{tooltip=The FRITZ!Box sid - after logging, find and copy a link containing sid}"
-    echo "arg {number=3}{call=--enable-logging}{display=Enable logging for debugging}{type=boolflag}"
-    echo "arg {number=4}{call=--log-file}{display=Location of log file}{type=string}{default=$DEBUG_LOG_FILE}"
+    echo "arg {number=1}{call=--arg-sid}{display=FRITZ!Box sid or URL with sid}{type=string}{tooltip=The FRITZ!Box sid - after logging, find and copy a link containing sid}"
+    echo "arg {number=2}{call=--enable-logging}{display=Enable logging for debugging}{type=boolflag}"
+    echo "arg {number=3}{call=--log-file}{display=Location of log file}{type=string}{default=$DEBUG_LOG_FILE}"
 }
 
 extcap_capture_filter_validation() {
@@ -152,11 +150,7 @@ while [[ $# -gt 0 ]] ; do
             ACTION=extcap_config
             ;;
         --extcap-interface)
-            # We only support one interface (and also use that for easier arg parsing)
-            if [[ "$2" != fritzbox-capture ]] ; then
-                echo "Unsupported interface: $2 (expected fritzbox-capture)"
-                exit 1
-            fi
+            FRITZ_BOX_IFACE=$2
             shift
             ;;
         --capture)
@@ -173,10 +167,6 @@ while [[ $# -gt 0 ]] ; do
             ;;
         --arg-ip)
             FRITZ_BOX_IP=$2
-            shift
-            ;;
-        --arg-iface)
-            FRITZ_BOX_IFACE=$2
             shift
             ;;
         --arg-sid)

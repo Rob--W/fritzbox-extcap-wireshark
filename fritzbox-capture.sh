@@ -12,7 +12,7 @@ set -euo pipefail
 # Configurable variables
 
 # fritz.box resolves here:
-FRITZ_BOX_IP=192.168.178.1
+FRITZ_BOX_IP=$(ip -j route show default | jq -r '.[0].gateway')
 
 # Potentially interesting - found by visiting https://$FRITZ_BOX_IP/?lp=cap and inspecting the buttons.
 # There is also a listing at https://github.com/jpluimers/fritzcap/blob/master/fritzcap-interfaces-table.md
